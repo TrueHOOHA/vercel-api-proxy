@@ -1,82 +1,228 @@
-# vercel-api-proxy
-[English README](./README_EN.md)    
+# Vercel API Proxy
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------  
-Telegram免费代理：  
+[English README](./README_EN.md) | [部署教程](#部署) | [使用方法](#使用方法) | [示例](#示例)
 
-免费送高速代理规则:    
-每分享一个人使用代理，可增加自己使用时间5天    
-怎么算分享成功呢？      
+> 🚀 基于 Vercel 的免费反向代理服务，支持代理全网接口，包括 OpenAI、Midjourney、GitHub、Google、Telegram 等
 
-你只需要把高速代理链接复制分享给需要的人，他开启使用后，你的代理免费使用时间就会自动增5天    
+---
 
-tg://proxy?server=23.142.200.64&port=20020&secret=ee660371158145253e06e5355bf40f5e3c617a7572652e6d6963726f736f66742e636f6d    
+## 📋 目录
 
-tg://proxy?server=23.142.200.64&port=20021&secret=ee66c371858445a53e06e5355bf40f8e5b617a7572652e6d6963726f736f66742e636f6d       
+- [功能特性](#功能特性)
+- [快速开始](#快速开始)
+- [部署指南](#部署指南)
+- [使用方法](#使用方法)
+- [使用示例](#使用示例)
+- [注意事项](#注意事项)
+- [贡献与支持](#贡献与支持)
 
-tg://proxy?server=23.142.200.64&port=20022&secret=ee4111911bedcc4e6eab41dea7c22b3c2c617a7572652e6d6963726f736f66742e636f6d    
+---
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------   
+## ✨ 功能特性
 
-本项目是vercel反向代理。完全免费，万能代理，可代理全网一切接口，包括openai、Midjourney、github、google、Telegram等等。http和https接口、单页面均可代理，在网络环境不好的情况下均可用。（直接浏览器打开代理页面的情况下，由于某些js和css的路径可能会不对造成访问不到不会有大的影响。）     
+- 🆓 **完全免费** - 利用 Vercel 每月 100GB 免费额度
+- 🌐 **全协议支持** - 支持 HTTP、HTTPS、WSS 协议
+- 🔓 **万能代理** - 可代理任意网站和 API 接口
+- ⚡ **高速稳定** - Vercel 全球 CDN 加速，IP 稳定可靠
+- 🛠️ **简单易用** - 一键部署，无需复杂配置
+- 📱 **单页应用** - 支持单页面应用代理
 
-(openai等接口服务大陆机器也可无需科学上网环境很稳定ip也稳定)    
+---
 
-(可强开QQ红域名)    
+## 🚀 快速开始
 
-vercel现在每月有100GB的免费流量。 
+### 一键部署
 
-This project is a Reverse proxy of vercel. Completely free, universal proxy, capable of representing all network interfaces, including openai, Midjournal, github, Google, Telegram, and more. Both HTTP and HTTPS interfaces, as well as single page proxies, are available in poor network environments. (In the case of directly opening the proxy page in the browser, the path of certain JS and CSS may not be correct, which will not have a significant impact on access.)    
+点击以下按钮，立即部署到 Vercel：
 
-(OpenAI and other interface services can also be provided to mainland machines without the need for scientific internet access. The environment is very stable and the IP is also stable.)     
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/souying/vercel-api-proxy)
 
-(Can forcibly open QQ red domain names)    
+---
 
-Vercel now has 100GB of free traffic per month.   
+## 📖 部署指南
 
-## 请您Star/Please Star   
+### 方法一：一键部署（推荐）
 
-如果您觉得此工具不错，请轻轻点击此页面右上角**Star**按钮增加项目曝光度，谢谢！软件完全免费（商用除外），只求大家Star和宣传给其他需要的朋友，谢谢！   
+1. 点击上方 **Deploy with Vercel** 按钮
+2. 登录/注册 Vercel 账号
+3. 点击 **Deploy** 完成部署
 
-If you think this tool is good, please gently click the **Star** button in the upper right corner at this page to increase the project exposure, thank you! The software is completely free (except for commercial use), only ask everyone to Star and promote it to other friends in need, thank you!    
+### 方法二：手动部署
 
-## 部署
-[![Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/souying/vercel-api-proxy)
+1. **Fork 本项目**
+   - 点击右上角 Fork 按钮，将项目复制到您的 GitHub 账号
 
+2. **连接 Vercel**
+   - 访问 [Vercel](https://vercel.com/) 并登录
+   - 点击 **New Project** 创建新项目
+   - 选择您 Fork 的仓库
 
-## 使用方法
-1 部署。部署有两种方法，一是直接点击上方按钮一键部署，二是可以先fork本项目，再登录[vercel](https://vercel.com/)网站新建
-![新建项目](img/newproject.png)
+   ![新建项目](img/newproject.png)
 
-2 绑定自己的域名(不是必须，使用vercel自带的子域名也可以，但是自带的域名vercel.app在国内网络环境不好的情况下不可用) 可以申请[tk免费域名](http://www.dot.tk/)或者薅小域名注册商首年免费羊毛
-![绑定域名](img/domain.png)
-绑定域名时按照vercel上的说明配置即可，其实就是在你的域名上配了一个子域名，cname到vercel服务器
+3. **绑定自定义域名（可选但推荐）**
+   - Vercel 默认提供 `.vercel.app` 子域名
+   - 但该域名在国内可能访问不稳定，建议绑定自己的域名
+   - 可申请 [Freenom 免费域名](http://www.dot.tk/) 或使用其他域名注册商
 
-3 访问 域名/https/url  或者/http/url即可。
-映射规则为/https/url映射到https接口，/http/url映射到http接口
+   ![绑定域名](img/domain.png)
 
-## 示例
-例1     
-访问https://替换为你自己的域名/https/api.openai.com/v1/chat/completions 
-实际上会替换为https://api.openai.com/v1/chat/completions
+   **域名配置说明：**
+   - 在您的域名服务商处添加 CNAME 记录
+   - 将子域名指向 Vercel 提供的服务器地址
 
-如何在一些常见的开源项目中使用？
-一般开源项目都是引用的openai的库，可以看到里面有一个属性是api_base = os.environ.get("OPENAI_API_BASE", "https://api.openai.com/v1")
+---
 
-所以使用的时候只需要设置一下openai.api_base="https://你的域名/https/api.openai.com/v1" 就可以了
+## 💡 使用方法
 
-例2   
-访问https://你的域名/https/github.com/souying/serverMmon/
-实际上会替换为https://github.com/souying/serverMmon/
-![demo2](img/demo2.png)
-映射规则为/https/url映射到https接口，/http/url映射到http接口
+### 基本语法
 
-也可用于github下载加速。假如原始链接是https://objects.githubusercontent.com/github-production-release-asset-2e65be/xxxxxx 
-改为https://替换为你自己的域名.com/https/objects.githubusercontent.com/github-production-release-asset-2e65be/xxxxxx 就可以加速了。下图是github原始链接和加速后对比。可以看到效果杠杠的，每秒50kb小水管变成了每秒2-3mb
-![github-download](img/github-download.png)
+访问格式：
+```
+https://你的域名/https/目标URL
+https://你的域名/http/目标URL
+```
 
-例3    
-访问https://你的域名/https/www.google.com/search?q=vercel-api-proxy
-实际上会替换为https://www.google.com/search?q=vercel-api-proxy
-![demo3](img/demo3.png)
-代理google搜索结果页面
+### 映射规则
+
+| 路径前缀 | 映射目标 |
+|---------|---------|
+| `/https/url` | → `https://url` |
+| `/http/url` | → `http://url` |
+| `/wss/url` | → `wss://url` |
+
+### 网页版使用
+
+部署完成后，直接访问您的域名，在输入框中输入完整 URL（需包含 `http://` 或 `https://`），点击 **Reverse Proxy** 按钮即可。
+
+---
+
+## 📝 使用示例
+
+### 示例 1：OpenAI API 代理
+
+**原始请求：**
+```
+https://api.openai.com/v1/chat/completions
+```
+
+**代理请求：**
+```
+https://你的域名/https/api.openai.com/v1/chat/completions
+```
+
+**在代码中使用：**
+
+大多数开源项目都支持自定义 API Base URL，例如：
+
+```python
+# Python 示例
+openai.api_base = "https://你的域名/https/api.openai.com/v1"
+```
+
+```javascript
+// JavaScript 示例
+const API_BASE = "https://你的域名/https/api.openai.com/v1";
+```
+
+> ✅ 中国大陆机器无需科学上网即可稳定访问
+
+---
+
+### 示例 2：GitHub 访问加速
+
+**原始链接：**
+```
+https://github.com/souying/vercel-api-proxy
+```
+
+**代理链接：**
+```
+https://你的域名/https/github.com/souying/vercel-api-proxy
+```
+
+![GitHub 代理示例](img/demo2.png)
+
+#### GitHub 下载加速
+
+对于 GitHub Release 资源下载：
+
+**原始链接：**
+```
+https://objects.githubusercontent.com/github-production-release-asset-2e65be/xxxxxx
+```
+
+**加速链接：**
+```
+https://你的域名/https/objects.githubusercontent.com/github-production-release-asset-2e65be/xxxxxx
+```
+
+![GitHub 下载加速对比](img/github-download.png)
+
+> 📊 实测速度从 50KB/s 提升至 2-3MB/s
+
+---
+
+### 示例 3：Google 搜索代理
+
+**原始链接：**
+```
+https://www.google.com/search?q=vercel-api-proxy
+```
+
+**代理链接：**
+```
+https://你的域名/https/www.google.com/search?q=vercel-api-proxy
+```
+
+![Google 搜索代理](img/demo3.png)
+
+---
+
+## ⚠️ 注意事项
+
+1. **流量限制** - Vercel 免费版每月提供 100GB 流量，请合理使用
+2. **JS/CSS 路径** - 直接通过代理访问某些网站时，部分静态资源路径可能不正确，但不影响主要功能
+3. **合规使用** - 请遵守当地法律法规，仅将此工具用于合法用途
+4. **商业用途** - 本软件完全免费（商用除外），如用于商业目的请联系作者
+
+---
+
+## 🙏 贡献与支持
+
+### Star 支持
+
+如果您觉得此工具对您有帮助，请点击页面右上角的 **Star** ⭐ 按钮支持项目发展！
+
+### 分享奖励
+
+🎁 **免费使用时长获取方式：**
+
+分享代理链接给需要的朋友，每成功分享一人（对方开始使用），您的免费使用时长自动增加 **5 天**！
+
+**如何算分享成功？**
+- 将您的代理链接分享给他人
+- 对方开始使用该代理服务
+- 系统自动为您增加 5 天使用时长
+
+### 联系方式
+
+- 📦 GitHub: [@souying](https://github.com/souying/vercel-api-proxy)
+- 💬 Telegram: 关注项目获取最新动态
+
+---
+
+## 📄 许可证
+
+本项目仅供学习研究使用。
+
+---
+
+## 🔗 相关链接
+
+- [Vercel 官网](https://vercel.com/)
+- [Vercel 文档](https://vercel.com/docs)
+- [本项目 GitHub](https://github.com/souying/vercel-api-proxy)
+
+---
+
+<p align="center">Made with ❤️ by <a href="https://github.com/souying">souying</a></p>
