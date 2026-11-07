@@ -1,61 +1,114 @@
-# vercel-api-proxy
+# Vercel API Proxy
+
 [简体中文](./README.md)
 
+A free reverse proxy on Vercel: add a prefix in front of any URL and access it through your own domain. Useful for giving APIs like OpenAI a different entry domain, or speeding up GitHub access and downloads.
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------  
-Telegram免费代理：  
+## Features
 
-免费送高速代理规则:    
-每分享一个人使用代理，可增加自己使用时间5天    
-怎么算分享成功呢？      
+- **Completely free** — runs on the Vercel free tier (100 GB/month)
+- **Zero dependencies** — a static homepage, `vercel.json` rewrites, and one Edge Function; no build step
+- **Two proxy modes** — direct (rewrite) and enhanced (Edge Function: follows 3xx redirects, adds CORS)
+- **Light/dark homepage** — type a URL, get both proxy links at once
 
-你只需要把高速代理链接复制分享给需要的人，他开启使用后，你的代理免费使用时间就会自动增5天    
-
-tg://proxy?server=23.142.200.64&port=20020&secret=ee660371158145253e06e5355bf40f5e3c617a7572652e6d6963726f736f66742e636f6d    
-
-tg://proxy?server=23.142.200.64&port=20021&secret=ee66c371858445a53e06e5355bf40f8e5b617a7572652e6d6963726f736f66742e636f6d       
-
-tg://proxy?server=23.142.200.64&port=20022&secret=ee4111911bedcc4e6eab41dea7c22b3c2c617a7572652e6d6963726f736f66742e636f6d    
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------  
-
-
-This project is a Vercel reverse proxy. It's completely free and an all-purpose proxy that can handle all interfaces on the internet, including OpenAI, GitHub, Google, and more. Both HTTP and HTTPS interfaces as well as single pages can be proxied and used in poor network environments. (When accessing the proxy page directly from a browser, some JS and CSS paths may not work correctly causing access issues and minor styling problems.)
 ## Deploy
-[![Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/souying/vercel-api-proxy)
 
+**Option 1: one-click (recommended)**
 
-## How to Use
-1 Deployment. There are two methods for deployment: one is to directly click the button above for one-click deployment, and the other is to first fork this project and then log in [vercel](https://vercel.com/) to create new one.
-![new project](img/newproject.png)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/TrueHOOHA/vercel-api-proxy)
 
-2 Bind your own domain name (not mandatory, you can also use Vercel's built-in subdomain, but the built-in domain vercel.app may not be accessible in poor network conditions in China).
-![domain](img/domain.png)
-When binding a domain, simply follow the instructions on Vercel to configure it. Essentially, you are setting up a subdomain on your domain and pointing its CNAME record to the Vercel server.
-3 To visit the https://yourdomain.com/https/url, or https://yourdomain.com/http/url.
-The mapping rule is to map /https/url to the https interface, and /http/url to the http interface.
+**Option 2: manual**
 
-### Enhanced mode (Edge Function)
+1. Fork this repository
+2. Log in to [Vercel](https://vercel.com/), **New Project** → import your fork → **Deploy**
 
-Visiting `https://yourdomain.com/api/proxy/https/url` proxies through an Edge Function instead of a plain rewrite. It additionally:
+   ![New project](assets/newproject.png)
 
-- Follows 3xx redirects: the `Location` response header is rewritten back into the proxy form, so the chain stays on your domain (including cross-domain redirects, e.g. GitHub releases to objects.githubusercontent.com).
-- Adds CORS headers (`Access-Control-Allow-Origin: *`) and answers OPTIONS preflights, so browser-side JavaScript can call the proxy directly.
+3. (Optional, recommended) Bind a custom domain — the default `.vercel.app` subdomain can be unstable in mainland China. Add a CNAME record at your registrar pointing to the address Vercel provides.
 
-For plain API calls and large downloads, prefer the plain `/https/...` rewrite path: no function execution limits and `Content-Length` is preserved. The enhanced mode buffers request bodies and does not fix broken asset paths inside proxied HTML pages.
+   ![Custom domain](assets/domain.png)
 
+## Usage
 
-demo1: visit https://yourdomain.com/https/api.openai.com/v1/chat/completions
-Actually will be replaced with https://api.openai.com/v1/chat/completions
+Just add a prefix to any URL:
 
-demo2: visit https://yourdomain.com/https/raw.githubusercontent.com/souying/serverMmon
-Actually will be replaced with https://raw.githubusercontent.com/souying/serverMmon
-![demo2](img/demo2.png)
-The mapping rule is to map /https/url to the https interface, and /http/url to the http interface.
+```
+https://your-domain.com/https/target-URL            ← direct mode
+https://your-domain.com/http/target-URL
+https://your-domain.com/api/proxy/https/target-URL   ← enhanced mode
+```
 
-demo3: visit https://yourdomain.com/https/www.google.com/search?q=vercel-api-proxy
-Actually will be replaced with https://www.google.com/search?q=vercel-api-proxy
-![demo3](img/demo3.png)
-Reverse proxy Google search results page.
+| Prefix | Maps to |
+|--------|---------|
+| `/https/target-URL` | `https://target-URL` |
+| `/http/target-URL` | `http://target-URL` |
+| `/api/proxy/https/target-URL` | `https://target-URL` (enhanced) |
+| `/api/proxy/http/target-URL` | `http://target-URL` (enhanced) |
 
+### Which mode to use
 
+| Scenario | Use |
+|----------|-----|
+| Server-side API calls, large downloads | Direct `/https/...`: no function overhead, keeps `Content-Length` |
+| Target returns 3xx redirects, or calling the proxy from browser JS | Enhanced `/api/proxy/...`: `Location` is rewritten back to proxy form (redirect chains stay on your domain); responses carry `Access-Control-Allow-Origin: *` |
+
+> The enhanced mode buffers request bodies and drops `Content-Length`, and is subject to function execution limits — use the direct mode for large downloads. It also does not rewrite asset references inside proxied pages.
+
+### Homepage
+
+Visit your domain after deploying, type a full URL (with `http://` or `https://`), and both proxy links are generated at once — copy or open them directly.
+
+## Examples
+
+### 1. New entry domain for the OpenAI API
+
+```python
+openai.api_base = "https://your-domain.com/https/api.openai.com/v1"
+```
+
+### 2. GitHub acceleration
+
+```text
+https://github.com/TrueHOOHA/vercel-api-proxy
+→ https://your-domain.com/https/github.com/TrueHOOHA/vercel-api-proxy
+```
+
+Release downloads (`github.com` 302s to `objects.githubusercontent.com`):
+
+- Direct mode: proxy the final URL after the redirect — `https://your-domain.com/https/objects.githubusercontent.com/...`
+- Enhanced mode: just proxy the original link, redirects are followed automatically —
+  `https://your-domain.com/api/proxy/https/github.com/owner/repo/releases/download/v1.0/file.zip`
+
+### 3. Google search (limits of page proxying)
+
+```text
+https://www.google.com/search?q=vercel-api-proxy
+→ https://your-domain.com/https/www.google.com/search?q=vercel-api-proxy
+```
+
+> Page proxying only works for simple, text-only pages. Asset references inside the HTML (`/js/x.js` etc.) are not rewritten, so complex pages break — in both modes.
+
+## How it works
+
+- **Direct mode**: 4 rewrite rules in `vercel.json` restore the protocol segment from the path and forward the request; no functions involved
+- **Enhanced mode**: `api/proxy/[...path].ts` (Edge Function) forwards the request, uses `redirect: 'manual'` to catch 3xx responses and rewrite `Location` back to proxy form, and adds CORS headers
+- The homepage is a single `index.html` that only generates links
+
+## Notes
+
+1. **Traffic quota** — the Vercel free tier allows 100 GB/month; use it wisely
+2. **Static assets** — asset paths inside proxied pages are not rewritten (see example 3)
+3. **Compliance** — follow your local laws and the Vercel terms of service; use for legal purposes only
+
+## Acknowledgements
+
+Forked from [souying/vercel-api-proxy](https://github.com/souying/vercel-api-proxy), with the following changes:
+
+- Fixed the homepage URL truncation bug (`split(':/')` dropped everything after a second `":/"`)
+- Removed the never-working WSS rules and the `:protocol*` catch-all rules that rewrote arbitrary paths into invalid schemes
+- Added enhanced mode (Edge Function: 3xx redirect following + CORS)
+- Redesigned the homepage (Vercel style, auto light/dark, both links generated at once)
+
+## License
+
+For study and research purposes only.

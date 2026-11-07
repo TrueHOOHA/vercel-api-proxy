@@ -1,228 +1,114 @@
 # Vercel API Proxy
 
-[English README](./README_EN.md) | [部署教程](#部署) | [使用方法](#使用方法) | [示例](#示例)
+[English README](./README_EN.md)
 
-> 🚀 基于 Vercel 的免费反向代理服务，支持代理全网接口，包括 OpenAI、Midjourney、GitHub、Google、Telegram 等
+基于 Vercel 的免费反向代理：在任意 URL 前加个前缀，就能通过你的域名访问它。适合给 OpenAI 等 API 换入口域名、加速 GitHub 访问与下载等场景。
 
----
+## 功能特性
 
-## 📋 目录
+- **完全免费** —— 跑在 Vercel 免费版上（每月 100GB 流量）
+- **零依赖** —— 一个静态首页 + `vercel.json` 重写规则 + 一个 Edge Function，无构建步骤
+- **两种代理模式** —— 直转（rewrite）与增强（Edge Function：跟随 3xx 跳转、自带 CORS）
+- **自动深浅色首页** —— 输入 URL 即可同时生成两种模式的代理链接
 
-- [功能特性](#功能特性)
-- [快速开始](#快速开始)
-- [部署指南](#部署指南)
-- [使用方法](#使用方法)
-- [使用示例](#使用示例)
-- [注意事项](#注意事项)
-- [贡献与支持](#贡献与支持)
+## 部署
 
----
+**方式一：一键部署（推荐）**
 
-## ✨ 功能特性
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/TrueHOOHA/vercel-api-proxy)
 
-- 🆓 **完全免费** - 利用 Vercel 每月 100GB 免费额度
-- 🌐 **协议支持** - 支持 HTTP、HTTPS 协议
-- 🔓 **万能代理** - 可代理任意网站和 API 接口
-- ⚡ **高速稳定** - Vercel 全球 CDN 加速，IP 稳定可靠
-- 🛠️ **简单易用** - 一键部署，无需复杂配置
-- 📱 **单页应用** - 支持单页面应用代理
+**方式二：手动部署**
 
----
+1. Fork 本仓库
+2. 登录 [Vercel](https://vercel.com/)，**New Project** → 选择你 Fork 的仓库 → **Deploy**
 
-## 🚀 快速开始
+   ![新建项目](assets/newproject.png)
 
-### 一键部署
+3. （可选，推荐）绑定自定义域名：`.vercel.app` 子域在国内可能访问不稳定。在你自己的域名服务商处添加 CNAME 记录，指向 Vercel 给出的地址即可。
 
-点击以下按钮，立即部署到 Vercel：
+   ![绑定域名](assets/domain.png)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/souying/vercel-api-proxy)
+## 使用方法
 
----
+在任意 URL 前加上前缀即可：
 
-## 📖 部署指南
-
-### 方法一：一键部署（推荐）
-
-1. 点击上方 **Deploy with Vercel** 按钮
-2. 登录/注册 Vercel 账号
-3. 点击 **Deploy** 完成部署
-
-### 方法二：手动部署
-
-1. **Fork 本项目**
-   - 点击右上角 Fork 按钮，将项目复制到您的 GitHub 账号
-
-2. **连接 Vercel**
-   - 访问 [Vercel](https://vercel.com/) 并登录
-   - 点击 **New Project** 创建新项目
-   - 选择您 Fork 的仓库
-
-   ![新建项目](img/newproject.png)
-
-3. **绑定自定义域名（可选但推荐）**
-   - Vercel 默认提供 `.vercel.app` 子域名
-   - 但该域名在国内可能访问不稳定，建议绑定自己的域名
-   - 可申请 [Freenom 免费域名](http://www.dot.tk/) 或使用其他域名注册商
-
-   ![绑定域名](img/domain.png)
-
-   **域名配置说明：**
-   - 在您的域名服务商处添加 CNAME 记录
-   - 将子域名指向 Vercel 提供的服务器地址
-
----
-
-## 💡 使用方法
-
-### 基本语法
-
-访问格式：
 ```
-https://你的域名/https/目标URL            ← 直转模式（rewrite 直转）
+https://你的域名/https/目标URL            ← 直转模式
 https://你的域名/http/目标URL
-https://你的域名/api/proxy/https/目标URL   ← 增强模式（Edge Function）
+https://你的域名/api/proxy/https/目标URL   ← 增强模式
 ```
 
-### 映射规则
-
-| 路径前缀 | 映射目标 |
-|---------|---------|
-| `/https/url` | → `https://url` |
-| `/http/url` | → `http://url` |
-| `/api/proxy/https/url` | → `https://url`（增强模式） |
-| `/api/proxy/http/url` | → `http://url`（增强模式） |
+| 前缀 | 映射到 |
+|------|--------|
+| `/https/目标URL` | `https://目标URL` |
+| `/http/目标URL` | `http://目标URL` |
+| `/api/proxy/https/目标URL` | `https://目标URL`（增强模式） |
+| `/api/proxy/http/目标URL` | `http://目标URL`（增强模式） |
 
 ### 两种模式怎么选
 
 | 场景 | 用哪个 |
 |------|--------|
-| 服务器端调用 API、大文件下载 | 直转模式 `/https/...`（无函数开销、保留 Content-Length） |
-| 目标站会 3xx 跳转（如 GitHub Release 原始链接）、浏览器网页里直接 `fetch` 代理 | 增强模式 `/api/proxy/...`（跟随跳转并把 `Location` 重写回代理格式；响应带 `Access-Control-Allow-Origin: *`） |
+| 服务器端调用 API、大文件下载 | 直转 `/https/...`：无函数开销、保留 `Content-Length` |
+| 目标站会 3xx 跳转、浏览器网页里直接 `fetch` | 增强 `/api/proxy/...`：`Location` 重写回代理格式（跳转不断链）；响应带 `Access-Control-Allow-Origin: *` |
 
-> 增强模式会把请求体整体读入内存、去掉 `Content-Length`（下载无进度条），并受函数执行时长限制，大文件下载请走直转模式。增强模式不解决代理网页时静态资源路径错乱的问题。
+> 增强模式会把请求体整体读入内存、去掉 `Content-Length`，并受函数执行时长限制——大文件下载请走直转模式。它也不改写页面里的静态资源引用。
 
-### 网页版使用
+### 首页
 
-部署完成后，直接访问您的域名，在输入框中输入完整 URL（需包含 `http://` 或 `https://`），点击 **Reverse Proxy** 按钮即可。勾选「增强模式」会生成 `/api/proxy/...` 形式的链接。
+部署后访问你的域名，输入完整 URL（带 `http://` 或 `https://` 前缀），会同时生成两种模式的链接，可一键复制或直接打开。
 
----
+## 示例
 
-## 📝 使用示例
-
-### 示例 1：OpenAI API 代理
-
-**原始请求：**
-```
-https://api.openai.com/v1/chat/completions
-```
-
-**代理请求：**
-```
-https://你的域名/https/api.openai.com/v1/chat/completions
-```
-
-**在代码中使用：**
-
-大多数开源项目都支持自定义 API Base URL，例如：
+### 1. 给 OpenAI API 换入口
 
 ```python
-# Python 示例
 openai.api_base = "https://你的域名/https/api.openai.com/v1"
 ```
 
-```javascript
-// JavaScript 示例
-const API_BASE = "https://你的域名/https/api.openai.com/v1";
+### 2. GitHub 加速
+
+```text
+https://github.com/TrueHOOHA/vercel-api-proxy
+→ https://你的域名/https/github.com/TrueHOOHA/vercel-api-proxy
 ```
 
-> ✅ 中国大陆机器无需科学上网即可稳定访问
+Release 下载（`github.com` 会 302 到 `objects.githubusercontent.com`）：
 
----
+- 直转模式：直接代理 302 后的最终地址 `https://你的域名/https/objects.githubusercontent.com/...`
+- 增强模式：直接代理原始链接即可，跳转自动跟随：
+  `https://你的域名/api/proxy/https/github.com/owner/repo/releases/download/v1.0/file.zip`
 
-### 示例 2：GitHub 访问加速
+### 3. Google 搜索（网页代理的局限）
 
-**原始链接：**
-```
-https://github.com/souying/vercel-api-proxy
-```
-
-**代理链接：**
-```
-https://你的域名/https/github.com/souying/vercel-api-proxy
-```
-
-![GitHub 代理示例](img/demo2.png)
-
-#### GitHub 下载加速
-
-对于 GitHub Release 资源下载：
-
-**原始链接：**
-```
-https://objects.githubusercontent.com/github-production-release-asset-2e65be/xxxxxx
-```
-
-**加速链接：**
-```
-https://你的域名/https/objects.githubusercontent.com/github-production-release-asset-2e65be/xxxxxx
-```
-
-> 也可以直接用增强模式代理 `github.com` 原始链接，302 跳转会自动跟随：
->
-> ```
-> https://你的域名/api/proxy/https/github.com/owner/repo/releases/download/v1.0/file.zip
-> ```
-
-![GitHub 下载加速对比](img/github-download.png)
-
-> 📊 实测速度从 50KB/s 提升至 2-3MB/s
-
----
-
-### 示例 3：Google 搜索代理
-
-**原始链接：**
-```
+```text
 https://www.google.com/search?q=vercel-api-proxy
+→ https://你的域名/https/www.google.com/search?q=vercel-api-proxy
 ```
 
-**代理链接：**
-```
-https://你的域名/https/www.google.com/search?q=vercel-api-proxy
-```
+> 网页代理只适合简单、纯文本的页面。HTML 里引用的静态资源（`/js/x.js` 等）不会被改写，复杂页面会错乱——两种模式都一样。
 
-![Google 搜索代理](img/demo3.png)
+## 工作原理
 
----
+- **直转模式**：`vercel.json` 里的 4 条 rewrite 规则，把路径里的协议段还原后转发，无任何函数开销
+- **增强模式**：`api/proxy/[...path].ts`（Edge Function）转发请求，用 `redirect: 'manual'` 拿到 3xx 并把 `Location` 重写回代理格式，同时给响应补 CORS 头
+- 首页是单文件 `index.html`，仅做链接生成
 
-## ⚠️ 注意事项
+## 注意事项
 
-1. **流量限制** - Vercel 免费版每月提供 100GB 流量，请合理使用
-2. **JS/CSS 路径** - 直接通过代理访问某些网站时，部分静态资源路径可能不正确，但不影响主要功能（增强模式只修复 3xx 跳转和 CORS，不改写页面里的资源引用）
-3. **合规使用** - 请遵守当地法律法规，仅将此工具用于合法用途
-4. **商业用途** - 本软件完全免费（商用除外），如用于商业目的请联系作者
+1. **流量限制** —— Vercel 免费版每月 100GB，请合理使用
+2. **静态资源** —— 代理网页时，页面内引用的资源路径不会被改写（见示例 3）
+3. **合规使用** —— 请遵守当地法律法规与 Vercel 服务条款，仅用于合法用途
 
----
+## 致谢
 
-## 联系方式
+Fork 自 [souying/vercel-api-proxy](https://github.com/souying/vercel-api-proxy)，在此基础上有以下改动：
 
-- 📦 GitHub: [@souying](https://github.com/souying/vercel-api-proxy)
-- 💬 Telegram: 关注项目获取最新动态
+- 修复首页 URL 截断 bug（`split(':/')` 会丢弃第二个 `":/"` 之后的内容）
+- 移除从未生效的 WSS 规则，以及会把任意路径改写成非法协议的 `:protocol*` 兜底规则
+- 新增增强模式（Edge Function：3xx 跳转跟随 + CORS）
+- 首页重设计（Vercel 风格、自动深浅色、双链接同时生成）
 
----
+## 许可证
 
-## 📄 许可证
-
-本项目仅供学习研究使用。
-
----
-
-## 🔗 相关链接
-
-- [Vercel 官网](https://vercel.com/)
-- [Vercel 文档](https://vercel.com/docs)
-- [本项目 GitHub](https://github.com/souying/vercel-api-proxy)
-
----
-
-<p align="center">Made with ❤️ by <a href="https://github.com/souying">souying</a></p>
+仅限学习研究使用。
