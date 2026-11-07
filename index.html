@@ -1,89 +1,351 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【免费】 vercel反向代理</title>
+    <title>Vercel API Proxy · 免费反向代理</title>
     <style>
-        html,body,body div,span,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,abbr,address,cite,code,del,dfn,em,img,ins,kbd,q,samp,small,strong,sub,sup,var,b,i,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,figure,footer,header,hgroup,menu,nav,section,time,mark,audio,video,details,summary{margin:0;padding:0;border:0;font-size:100%;vertical-align:baseline;background:transparent;}html,body,.wrapper{height:100%;width:100%;background-image:linear-gradient(to top,#c1dfc4 0%,#deecdd 100%);}input{font-family:inherit;}*,html,body{font-family:"Lato",serif;font-size:15px;font-weight:300;line-height:22px;}*:focus{outline:none;}*,*:before,*:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}.UrlCheck{opacity:1;height:auto;}.UrlCheck{margin-top:0px !important;}.row{position:relative;width:100%;}.row:before,.row:after{content:"";display:table;line-height:0;}.row [class*="span"].noFloat{float:none;margin:2% auto;overflow:hidden;}.UrlCheck .span10{margin-top:70px !important;}h1.splash{font-size:48px;margin:0;margin-top:130px;margin-bottom:0px;line-height:52px;color:#FFF;text-shadow:0px 2px 4px rgba(0,0,0,0.5);}strong{font-weight:bold;}.UrlCheck .span10{background:rgba(255,255,255,0.5);padding:7px;overflow:hidden;margin-top:0px !important;max-width:800px;}.margin .span10{width:81.33333%;}.row [class*="span"]{float:left;position:relative;}textarea,input[type="text"],input[type="password"]{width:100%;background:#FFF;border:0px solid #CCC;padding:8px 5px;color:#333;}textarea,input[type="text"],input[type="password"]{width:75%;background:#EFEFEF;border:0px solid #CCC;padding:8px 5px;color:#22225d;float:left;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;}.row .textCenter{text-align:center;background:none;}.UrlCheck input[type="text"]{-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;font-size:20px;height:58px;line-height:58px;width:100%;float:left;padding-left:10px;}.UrlCheck input[type="text"]{-webkit-border-radius:0px;-moz-border-radius:0px;border-radius:0px;-webkit-border-top-left-radius:4px;-moz-border-top-left-radius:4px;border-top-left-radius:4px;-webkit-border-bottom-left-radius:4px;-moz-border-bottom-left-radius:4px;border-bottom-left-radius:4px;font-size:20px;height:58px;line-height:58px;width:70%;float:left;padding-left:10px;background:#FFF;}.UrlCheck #submitBtn{position:absolute;-webkit-border-radius:0px;-moz-border-radius:0px;border-radius:0px;-webkit-border-top-right-radius:4px;-moz-border-top-right-radius:4px;border-top-right-radius:4px;-webkit-border-bottom-right-radius:4px;-moz-border-bottom-right-radius:4px;border-bottom-right-radius:4px;background:#9dca68;font-size:18px;height:58px;line-height:58px;border:0;font-weight:400;width:30%;text-align:center;margin-top:0px;color:#FFF;cursor:pointer;right:7px;top:7px;}a,a:visited{color:#22225e;text-decoration:none;}.footer{text-align:center;margin-top:-70px;padding:25px 0 0 0;z-index:1000;background:rgba(0,0,0,0.5);height:70px;}.footer a{margin-right:20px;}.mode{display:block;margin:12px 4px 0;color:#22225d;font-size:14px;line-height:20px;text-align:left;cursor:pointer;user-select:none;}.mode input{width:auto;height:auto;margin-right:6px;vertical-align:-2px;cursor:pointer;}
+        /* ---------- 主题变量（自动跟随系统深浅色） ---------- */
+        :root {
+            --bg: #ffffff;
+            --fg: #171717;
+            --muted: #666666;
+            --border: #e5e5e5;
+            --card: #ffffff;
+            --btn-bg: #000000;
+            --btn-fg: #ffffff;
+            --btn-hover: rgba(0, 0, 0, 0.85);
+            --accent: #0070f3;
+            --accent-ring: rgba(0, 112, 243, 0.15);
+            --error: #d33;
+            --code-bg: #f6f6f6;
+            --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.05);
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0a0a0a;
+                --fg: #ededed;
+                --muted: #a1a1a1;
+                --border: #303030;
+                --card: #111111;
+                --btn-bg: #ffffff;
+                --btn-fg: #000000;
+                --btn-hover: rgba(255, 255, 255, 0.85);
+                --accent: #3790ff;
+                --accent-ring: rgba(55, 144, 255, 0.2);
+                --error: #ff6b6b;
+                --code-bg: #1c1c1c;
+                --shadow: 0 1px 2px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        /* ---------- 基础 ---------- */
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB",
+                "Microsoft YaHei", sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 键盘焦点环（可访问性） */
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* ---------- 主区域 ---------- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 20px;
+            text-align: center;
+        }
+        h1 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 8px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        h1 svg { width: 22px; height: 22px; }
+        .subtitle {
+            margin: 0 0 40px;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        /* ---------- 输入卡片 ---------- */
+        .card {
+            width: 100%;
+            max-width: 620px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            text-align: left;
+        }
+        .input-row { display: flex; gap: 10px; }
+        #input {
+            flex: 1;
+            min-width: 0;
+            height: 46px;
+            padding: 0 14px;
+            font-size: 14px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            color: var(--fg);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        #input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-ring);
+            outline: none;
+        }
+        #submitBtn {
+            height: 46px;
+            padding: 0 22px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--btn-fg);
+            background: var(--btn-bg);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        #submitBtn:hover { background: var(--btn-hover); }
+
+        .error {
+            margin: 10px 2px 0;
+            color: var(--error);
+            font-size: 13px;
+        }
+
+        /* ---------- 生成结果：两种模式同时展示 ---------- */
+        .results {
+            margin-top: 18px;
+            display: grid;
+            gap: 14px;
+        }
+        .result-label {
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 12.5px;
+        }
+        .result-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .result-row code {
+            flex: 1;
+            min-width: 200px;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--code-bg);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12.5px;
+            word-break: break-all;
+            color: var(--fg);
+        }
+        .copyBtn {
+            height: 34px;
+            padding: 0 14px;
+            font-size: 13px;
+            color: var(--fg);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .copyBtn:hover { border-color: var(--muted); }
+        .openLink {
+            height: 34px;
+            line-height: 32px;
+            padding: 0 14px;
+            font-size: 13px;
+            color: var(--fg);
+            text-decoration: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .openLink:hover { border-color: var(--muted); }
+
+        /* ---------- 用法提示 ---------- */
+        .usage {
+            width: 100%;
+            max-width: 620px;
+            margin-top: 28px;
+            color: var(--muted);
+            font-size: 13.5px;
+            line-height: 2.2;
+        }
+        .usage code {
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: var(--code-bg);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12.5px;
+        }
+
+        /* ---------- 页脚 ---------- */
+        footer {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 13.5px;
+        }
+        footer a { color: var(--muted); text-decoration: none; }
+        footer a:hover { color: var(--fg); }
+
+        /* ---------- 手机适配 ---------- */
+        @media (max-width: 520px) {
+            h1 { font-size: 22px; }
+            .card { padding: 18px; }
+            .input-row { flex-direction: column; }
+            #submitBtn { width: 100%; }
+            .result-row code { min-width: 100%; }
+        }
     </style>
 </head>
-
 <body>
-    <div class="wrapper">
-        <div class="UrlCheck">
-            <div class="row margin">
-                <div class="span10 noFloat textCenter">
-                    <h1 class="splash"><strong>【免费】</strong>的Vercel反向代理</h1>
-                </div>
-                <div class="span10 noFloat">
-                    <div class="searchform">
-                        <input type="text" id="input" placeholder="请输入URL" name="domainname">
-                        <a id="submitBtn" title="反向代理">Reverse Proxy</a>
+    <main>
+        <header>
+            <h1>
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 3 22 20H2Z" />
+                </svg>
+                Vercel API Proxy
+            </h1>
+            <p class="subtitle">免费反向代理 · 部署到 Vercel 即可使用</p>
+        </header>
+
+        <form class="card" id="proxyForm">
+            <div class="input-row">
+                <input type="text" id="input" name="domainname"
+                       placeholder="请输入完整 URL，如 https://api.openai.com/v1"
+                       autocomplete="off" spellcheck="false">
+                <button type="submit" id="submitBtn">生成</button>
+            </div>
+            <p class="error" id="errorMsg" hidden></p>
+
+            <div class="results" id="results" hidden>
+                <div class="result">
+                    <div class="result-label">直转模式 —— API 调用 / 大文件下载</div>
+                    <div class="result-row">
+                        <code id="directLink"></code>
+                        <button type="button" class="copyBtn" data-target="directLink">复制</button>
+                        <a class="openLink" id="directOpen" target="_blank" rel="noopener">打开 ↗</a>
                     </div>
-                    <label class="mode"><input type="checkbox" id="fnMode"> 增强模式（跟随 302 跳转，支持浏览器跨域调用，走 /api/proxy）</label>
+                </div>
+                <div class="result">
+                    <div class="result-label">增强模式 —— 跟随 3xx 跳转 / 浏览器跨域（CORS）</div>
+                    <div class="result-row">
+                        <code id="enhancedLink"></code>
+                        <button type="button" class="copyBtn" data-target="enhancedLink">复制</button>
+                        <a class="openLink" id="enhancedOpen" target="_blank" rel="noopener">打开 ↗</a>
+                    </div>
                 </div>
             </div>
+        </form>
+
+        <div class="usage">
+            也可以直接在任何 URL 前加前缀使用：<br>
+            直转模式&nbsp;&nbsp;<code>你的域名/https/目标URL</code><br>
+            增强模式&nbsp;&nbsp;<code>你的域名/api/proxy/https/目标URL</code>
         </div>
-    </div>
+    </main>
 
+    <footer>
+        <a href="https://vercel.com" target="_blank" rel="noopener">Powered by Vercel</a>
+        <a href="https://github.com/TrueHOOHA/vercel-api-proxy" target="_blank" rel="noopener">GitHub</a>
+    </footer>
 
-    <div class="footer">
-        <a href="https://vercel.com/" target="_blank"><img alt="vercel"
-                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iODMiIGhlaWdodD0iMjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0i5Z+65LqOdmVyY2VsIj48dGl0bGU+5Z+65LqOdmVyY2VsPC90aXRsZT48ZyBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxyZWN0IHdpZHRoPSIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjNTU1Ii8+PHJlY3QgeD0iMCIgd2lkdGg9IjgzIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzMzMzMzIi8+PC9nPjxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJWZXJkYW5hLEdlbmV2YSxEZWphVnUgU2FucyxzYW5zLXNlcmlmIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBmb250LXNpemU9IjExMCI+PGltYWdlIHg9IjUiIHk9IjMiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCbWFXeHNQU0ozYUdsMFpYTnRiMnRsSWlCeWIyeGxQU0pwYldjaUlIWnBaWGRDYjNnOUlqQWdNQ0F5TkNBeU5DSWdlRzFzYm5NOUltaDBkSEE2THk5M2QzY3Vkek11YjNKbkx6SXdNREF2YzNabklqNDhkR2wwYkdVK1ZtVnlZMlZzUEM5MGFYUnNaVDQ4Y0dGMGFDQmtQU0pOTWpRZ01qSXVOVEkxU0RCc01USXRNakV1TURVZ01USWdNakV1TURWNklpOCtQQzl6ZG1jKyIvPjx0ZXh0IHg9IjUwNSIgeT0iMTQwIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgZmlsbD0iI2ZmZiIgdGV4dExlbmd0aD0iNTUwIj7ln7rkuo52ZXJjZWw8L3RleHQ+PC9nPjwvc3ZnPg=="></a>
-        <a href="#" target="_blank"><span></span><img alt="status"
-                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iOTYiIGhlaWdodD0iMjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0ic3RhdHVzOiBzdWNjZXNzIj48dGl0bGU+c3RhdHVzOiBzdWNjZXNzPC90aXRsZT48bGluZWFyR3JhZGllbnQgaWQ9InMiIHgyPSIwIiB5Mj0iMTAwJSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjYmJiIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLW9wYWNpdHk9Ii4xIi8+PC9saW5lYXJHcmFkaWVudD48Y2xpcFBhdGggaWQ9InIiPjxyZWN0IHdpZHRoPSI5NiIgaGVpZ2h0PSIyMCIgcng9IjMiIGZpbGw9IiNmZmYiLz48L2NsaXBQYXRoPjxnIGNsaXAtcGF0aD0idXJsKCNyKSI+PHJlY3Qgd2lkdGg9IjQzIiBoZWlnaHQ9IjIwIiBmaWxsPSIjNTU1Ii8+PHJlY3QgeD0iNDMiIHdpZHRoPSI1MyIgaGVpZ2h0PSIyMCIgZmlsbD0iIzk3Y2EwMCIvPjxyZWN0IHdpZHRoPSI5NiIgaGVpZ2h0PSIyMCIgZmlsbD0idXJsKCNzKSIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iVmVyZGFuYSxHZW5ldmEsRGVqYVZ1IFNhbnMsc2Fucy1zZXJpZiIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgZm9udC1zaXplPSIxMTAiPjx0ZXh0IGFyaWEtaGlkZGVuPSJ0cnVlIiB4PSIyMjUiIHk9IjE1MCIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHRleHRMZW5ndGg9IjMzMCI+c3RhdHVzPC90ZXh0Pjx0ZXh0IHg9IjIyNSIgeT0iMTQwIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgZmlsbD0iI2ZmZiIgdGV4dExlbmd0aD0iMzMwIj5zdGF0dXM8L3RleHQ+PHRleHQgYXJpYS1oaWRkZW49InRydWUiIHg9IjY4NSIgeT0iMTUwIiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgdGV4dExlbmd0aD0iNDMwIj5zdWNjZXNzPC90ZXh0Pjx0ZXh0IHg9IjY4NSIgeT0iMTQwIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgZmlsbD0iI2ZmZiIgdGV4dExlbmd0aD0iNDMwIj5zdWNjZXNzPC90ZXh0PjwvZz48L3N2Zz4="></a>
-        <a href="https://github.com/souying/vercel-api-proxy" target="_blank"><img alt="github"
-                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iODciIGhlaWdodD0iMjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iR2l0aHVi5LuT5bqTIj48dGl0bGU+R2l0aHVi5LuT5bqTPC90aXRsZT48ZyBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxyZWN0IHdpZHRoPSIwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjNTU1Ii8+PHJlY3QgeD0iMCIgd2lkdGg9Ijg3IiBoZWlnaHQ9IjIwIiBmaWxsPSIjMzMzMzMzIi8+PC9nPjxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJWZXJkYW5hLEdlbmV2YSxEZWphVnUgU2FucyxzYW5zLXNlcmlmIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBmb250LXNpemU9IjExMCI+PGltYWdlIHg9IjUiIHk9IjMiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCbWFXeHNQU0ozYUdsMFpYTnRiMnRsSWlCeWIyeGxQU0pwYldjaUlIWnBaWGRDYjNnOUlqQWdNQ0F5TkNBeU5DSWdlRzFzYm5NOUltaDBkSEE2THk5M2QzY3Vkek11YjNKbkx6SXdNREF2YzNabklqNDhkR2wwYkdVK1IybDBTSFZpUEM5MGFYUnNaVDQ4Y0dGMGFDQmtQU0pOTVRJZ0xqSTVOMk10Tmk0Mk15QXdMVEV5SURVdU16Y3pMVEV5SURFeUlEQWdOUzR6TURNZ015NDBNemdnT1M0NElEZ3VNakExSURFeExqTTROUzQyTGpFeE15NDRNaTB1TWpVNExqZ3lMUzQxTnpjZ01DMHVNamcxTFM0d01TMHhMakEwTFM0d01UVXRNaTR3TkMwekxqTXpPQzQzTWpRdE5DNHdOREl0TVM0Mk1TMDBMakEwTWkweExqWXhRelF1TkRJeUlERTRMakEzSURNdU5qTXpJREUzTGpjZ015NDJNek1nTVRjdU4yTXRNUzR3T0RjdExqYzBOQzR3T0RRdExqY3lPUzR3T0RRdExqY3lPU0F4TGpJd05TNHdPRFFnTVM0NE16Z2dNUzR5TXpZZ01TNDRNemdnTVM0eU16WWdNUzR3TnlBeExqZ3pOU0F5TGpnd09TQXhMak13TlNBekxqUTVOUzQ1T1RndU1UQTRMUzQzTnpZdU5ERTNMVEV1TXpBMUxqYzJMVEV1TmpBMUxUSXVOalkxTFM0ekxUVXVORFkyTFRFdU16TXlMVFV1TkRZMkxUVXVPVE1nTUMweExqTXhMalEyTlMweUxqTTRJREV1TWpNMUxUTXVNakl0TGpFek5TMHVNekF6TFM0MU5DMHhMalV5TXk0eE1EVXRNeTR4TnpZZ01DQXdJREV1TURBMUxTNHpNaklnTXk0eklERXVNak11T1RZdExqSTJOeUF4TGprNExTNHpPVGtnTXkwdU5EQTFJREV1TURJdU1EQTJJREl1TURRdU1UTTRJRE1nTGpRd05TQXlMakk0TFRFdU5UVXlJRE11TWpnMUxURXVNak1nTXk0eU9EVXRNUzR5TXk0Mk5EVWdNUzQyTlRNdU1qUWdNaTQ0TnpNdU1USWdNeTR4TnpZdU56WTFMamcwSURFdU1qTWdNUzQ1TVNBeExqSXpJRE11TWpJZ01DQTBMall4TFRJdU9EQTFJRFV1TmpJMUxUVXVORGMxSURVdU9USXVOREl1TXpZdU9ERWdNUzR3T1RZdU9ERWdNaTR5TWlBd0lERXVOakEyTFM0d01UVWdNaTQ0T1RZdExqQXhOU0F6TGpJNE5pQXdJQzR6TVRVdU1qRXVOamt1T0RJMUxqVTNRekl3TGpVMk5TQXlNaTR3T1RJZ01qUWdNVGN1TlRreUlESTBJREV5TGpJNU4yTXdMVFl1TmpJM0xUVXVNemN6TFRFeUxURXlMVEV5SWk4K1BDOXpkbWMrIi8+PHRleHQgeD0iNTI1IiB5PSIxNDAiIHRyYW5zZm9ybT0ic2NhbGUoLjEpIiBmaWxsPSIjZmZmIiB0ZXh0TGVuZ3RoPSI1OTAiPkdpdGh1YuS7k+W6kzwvdGV4dD48L2c+PC9zdmc+"></a>
-    </div>
-</body>
-<script>
-    // 这个是正则的啊喂
-    const urlPattern = /^(http|https):\/\/[^ "]+$/;
+    <script>
+        const input = document.getElementById('input');
+        const errorMsg = document.getElementById('errorMsg');
+        const form = document.getElementById('proxyForm');
+        const results = document.getElementById('results');
+        const directLink = document.getElementById('directLink');
+        const enhancedLink = document.getElementById('enhancedLink');
+        const directOpen = document.getElementById('directOpen');
+        const enhancedOpen = document.getElementById('enhancedOpen');
 
-    // 提前把变量定义出来
-    const input = document.getElementById('input');
-    const submit = document.getElementById('submitBtn');
-    const fnMode = document.getElementById('fnMode');
+        // 校验：完整 URL，必须带 http(s):// 前缀（大小写均可）
+        const URL_RE = /^(https?):\/\/\S+$/i;
 
-    // 监听一个键盘的Enter事件
-    input.addEventListener("keyup", (event) => {
-        if (event.key === "Enter") {
-            console.log("Enter键被按下了");
-            // 执行你的操作
-            jumpFn(event)
-        }
-    });
+        function generate(showError) {
+            const inputVal = input.value.trim();
 
-    // 箭筒一个 按钮被点击的事件
-    submit.addEventListener('click', jumpFn)
+            if (!URL_RE.test(inputVal)) {
+                if (showError) {
+                    errorMsg.textContent = '请输入以 http:// 或 https:// 开头的完整 URL';
+                    errorMsg.hidden = false;
+                }
+                results.hidden = true;
+                return;
+            }
+            errorMsg.hidden = true;
 
-    // 这个是 主函数
-    function jumpFn(event) {
-        const inputVal = input.value;
-        // 执行你的操作
-        if (!inputVal) {
-            console.log("这也妹有输入内容鸭！");
-        } else if (!urlPattern.test(inputVal)) {
-            // 输入的内容不是 URL，给出提示信息
-            alert("你得输入有效的 URL鸭！");
-        } else {
-            // 业务逻辑
-            console.log('开始处理业务逻辑')
-            // 获取当前的url
-            // const BaseUrl = 'https://fy-proxy.vercel.app';
-            const BaseUrl = location.origin;
             // 把协议分隔符 "://" 替换成 "/"（replace 只替换第一次出现，
             // 避免 URL 中再次出现 ":/"（如 ?redirect=http://... ）时链接被截断）
-            // 增强模式改走 Edge Function（/api/proxy）：跟随 3xx 跳转 + 带跨域（CORS）响应头
-            const prefix = fnMode.checked ? '/api/proxy' : '';
-            const jumpUrl = `${BaseUrl}${prefix}/${inputVal.replace('://', '/')}`;
-            // console.log(jumpUrl)
-            // 跳出去
-            window.open(jumpUrl, "_blank");
-            // 完成
+            const path = inputVal.replace('://', '/');
+            directLink.textContent = `${location.origin}/${path}`;
+            enhancedLink.textContent = `${location.origin}/api/proxy/${path}`;
+            directOpen.href = directLink.textContent;
+            enhancedOpen.href = enhancedLink.textContent;
+            results.hidden = false;
         }
-    }
-</script>
 
+        // 输入即生成；回车/按钮同样触发（此时才提示错误）
+        input.addEventListener('input', () => generate(false));
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            generate(true);
+        });
+
+        // 复制按钮（clipboard API，file:// 等非安全上下文退回 execCommand）
+        document.querySelectorAll('.copyBtn').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const text = document.getElementById(btn.dataset.target).textContent;
+                let ok = false;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    ok = true;
+                } catch {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try { ok = document.execCommand('copy'); } catch { ok = false; }
+                    ta.remove();
+                }
+                btn.textContent = ok ? '已复制 ✓' : '复制失败';
+                setTimeout(() => { btn.textContent = '复制'; }, 1500);
+            });
+        });
+
+        input.focus();
+    </script>
+</body>
 </html>
