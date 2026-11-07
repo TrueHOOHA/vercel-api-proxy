@@ -21,7 +21,7 @@
 ## ✨ 功能特性
 
 - 🆓 **完全免费** - 利用 Vercel 每月 100GB 免费额度
-- 🌐 **全协议支持** - 支持 HTTP、HTTPS、WSS 协议
+- 🌐 **协议支持** - 支持 HTTP、HTTPS 协议
 - 🔓 **万能代理** - 可代理任意网站和 API 接口
 - ⚡ **高速稳定** - Vercel 全球 CDN 加速，IP 稳定可靠
 - 🛠️ **简单易用** - 一键部署，无需复杂配置
@@ -78,8 +78,9 @@
 
 访问格式：
 ```
-https://你的域名/https/目标URL
+https://你的域名/https/目标URL            ← 直转模式（rewrite 直转）
 https://你的域名/http/目标URL
+https://你的域名/api/proxy/https/目标URL   ← 增强模式（Edge Function）
 ```
 
 ### 映射规则
@@ -88,11 +89,21 @@ https://你的域名/http/目标URL
 |---------|---------|
 | `/https/url` | → `https://url` |
 | `/http/url` | → `http://url` |
-| `/wss/url` | → `wss://url` |
+| `/api/proxy/https/url` | → `https://url`（增强模式） |
+| `/api/proxy/http/url` | → `http://url`（增强模式） |
+
+### 两种模式怎么选
+
+| 场景 | 用哪个 |
+|------|--------|
+| 服务器端调用 API、大文件下载 | 直转模式 `/https/...`（无函数开销、保留 Content-Length） |
+| 目标站会 3xx 跳转（如 GitHub Release 原始链接）、浏览器网页里直接 `fetch` 代理 | 增强模式 `/api/proxy/...`（跟随跳转并把 `Location` 重写回代理格式；响应带 `Access-Control-Allow-Origin: *`） |
+
+> 增强模式会把请求体整体读入内存、去掉 `Content-Length`（下载无进度条），并受函数执行时长限制，大文件下载请走直转模式。增强模式不解决代理网页时静态资源路径错乱的问题。
 
 ### 网页版使用
 
-部署完成后，直接访问您的域名，在输入框中输入完整 URL（需包含 `http://` 或 `https://`），点击 **Reverse Proxy** 按钮即可。
+部署完成后，直接访问您的域名，在输入框中输入完整 URL（需包含 `http://` 或 `https://`），点击 **Reverse Proxy** 按钮即可。勾选「增强模式」会生成 `/api/proxy/...` 形式的链接。
 
 ---
 
@@ -156,6 +167,12 @@ https://objects.githubusercontent.com/github-production-release-asset-2e65be/xxx
 https://你的域名/https/objects.githubusercontent.com/github-production-release-asset-2e65be/xxxxxx
 ```
 
+> 也可以直接用增强模式代理 `github.com` 原始链接，302 跳转会自动跟随：
+>
+> ```
+> https://你的域名/api/proxy/https/github.com/owner/repo/releases/download/v1.0/file.zip
+> ```
+
 ![GitHub 下载加速对比](img/github-download.png)
 
 > 📊 实测速度从 50KB/s 提升至 2-3MB/s
@@ -181,7 +198,7 @@ https://你的域名/https/www.google.com/search?q=vercel-api-proxy
 ## ⚠️ 注意事项
 
 1. **流量限制** - Vercel 免费版每月提供 100GB 流量，请合理使用
-2. **JS/CSS 路径** - 直接通过代理访问某些网站时，部分静态资源路径可能不正确，但不影响主要功能
+2. **JS/CSS 路径** - 直接通过代理访问某些网站时，部分静态资源路径可能不正确，但不影响主要功能（增强模式只修复 3xx 跳转和 CORS，不改写页面里的资源引用）
 3. **合规使用** - 请遵守当地法律法规，仅将此工具用于合法用途
 4. **商业用途** - 本软件完全免费（商用除外），如用于商业目的请联系作者
 

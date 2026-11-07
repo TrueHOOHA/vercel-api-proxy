@@ -35,6 +35,15 @@ When binding a domain, simply follow the instructions on Vercel to configure it.
 3 To visit the https://yourdomain.com/https/url, or https://yourdomain.com/http/url.
 The mapping rule is to map /https/url to the https interface, and /http/url to the http interface.
 
+### Enhanced mode (Edge Function)
+
+Visiting `https://yourdomain.com/api/proxy/https/url` proxies through an Edge Function instead of a plain rewrite. It additionally:
+
+- Follows 3xx redirects: the `Location` response header is rewritten back into the proxy form, so the chain stays on your domain (including cross-domain redirects, e.g. GitHub releases to objects.githubusercontent.com).
+- Adds CORS headers (`Access-Control-Allow-Origin: *`) and answers OPTIONS preflights, so browser-side JavaScript can call the proxy directly.
+
+For plain API calls and large downloads, prefer the plain `/https/...` rewrite path: no function execution limits and `Content-Length` is preserved. The enhanced mode buffers request bodies and does not fix broken asset paths inside proxied HTML pages.
+
 
 demo1: visit https://yourdomain.com/https/api.openai.com/v1/chat/completions
 Actually will be replaced with https://api.openai.com/v1/chat/completions
